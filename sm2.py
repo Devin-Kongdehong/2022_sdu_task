@@ -1,8 +1,16 @@
 from random import randint
 import math
-from prime import modinv
-from sm3 import sm3hash
 import hashlib
+
+def modinv(a,m):
+    x1,x2,x3=1,0,a
+    y1,y2,y3=0,1,m
+    while y3!=0:
+        q=x3//y3
+        t1,t2,t3=x1-q*y1,x2-q*y2,x3-q*y3
+        x1,x2,x3=y1,y2,y3
+        y1,y2,y3=t1,t2,t3
+    return x1%m
 
 def addition(x1,y1,x2,y2,a,p):
     if x1==x2 and y1==p-y2:
@@ -28,7 +36,8 @@ def kdf(z,klen):
     ct=1
     k=''
     for _ in range(math.ceil(klen/256)):
-        k=k+sm3hash(hex(int(z+'{:032b}'.format(ct),2))[2:])
+        h = hashlib.new('sha256', b"hex(int(z+'{:032b}'.format(ct),2))[2:]")
+        k=k+h.hexdigest()
         ct=ct+1
     k='0'*((256-(len(bin(int(k,16))[2:])%256))%256)+bin(int(k,16))[2:]
     return k[:klen]
@@ -56,8 +65,8 @@ def encrypt(m:str):
     m='0'*((4-(len(bin(int(m.encode().hex(),16))[2:])%4))%4)+bin(int(m.encode().hex(),16))[2:]
     klen=len(m)
     while True:
-        #RFC
-        k=hashlib.sha256(dB+sm3hash(m))
+
+        k=randint(1, n)
         while k==dB:
             k=randint(1, n)
         x2,y2=mutipoint(xB, yB, k, a, p)
@@ -69,7 +78,8 @@ def encrypt(m:str):
     x1,y1=(plen-len(hex(x1)[2:]))*'0'+hex(x1)[2:],(plen-len(hex(y1)[2:]))*'0'+hex(y1)[2:]
     c1='04'+x1+y1
     c2=((klen//4)-len(hex(int(m,2)^int(t,2))[2:]))*'0'+hex(int(m,2)^int(t,2))[2:]
-    c3=sm3hash(hex(int(x2+m+y2,2))[2:])
+    h = hashlib.new('sha256', b"hex(int(x2+m+y2,2))[2:]")
+    c3=h.hexdigest()
     return c1,c2,c3
 
 def decrypt(c1,c2,c3,a,b,p):
@@ -84,7 +94,8 @@ def decrypt(c1,c2,c3,a,b,p):
     if int(t,2)==0:
         return False
     m='0'*(klen-len(bin(int(c2,16)^int(t,2))[2:]))+bin(int(c2,16)^int(t,2))[2:]
-    u=sm3hash(hex(int(x2+m+y2,2))[2:])
+    h = hashlib.new('sha256', b"hex(int(x2+m+y2,2))[2:]")
+    u=h.hexdigest()
     if u!=c3:
         return False
     return hex(int(m,2))[2:]
@@ -99,13 +110,7 @@ print('\nciphertext:')
 for i in range(len(c)):
     print(c[i*8:(i+1)*8],end=' ')
 print('\n\nplaintext:')
-'''
-输出密文C= C1∥C2∥C3：
-04245C26 FB68B1DD DDB12C4B 6BF9F2B6 D5FE60A3 83B0D18D 1C4144AB F17F6252
-E776CB92 64C2A7E8 8E52B199 03FDC473 78F605E3 6811F5C0 7423A24B 84400F01
-B8650053 A89B41C4 18B0C3AA D00D886C 00286467 9C3D7360 C30156FA B7C80A02
-76712DA9 D8094A63 4B766D3A 285E0748 0653426D
-'''
+
 m1=decrypt(c1, c2, c3, a, b, p)
 if m1:
     m1=str(bytes.fromhex(m1))
