@@ -44,7 +44,8 @@ def decrypt(c1,c2,c3,a,b,p):
 
 ![image](https://user-images.githubusercontent.com/77255629/180713954-d3d2bae7-981a-4f47-852b-2922871a7e9e.png)
 
-
+## 运行建议
+代码均使用自带的库函数，若装有vs，项目一可直接点开sln文件。项目二用python3.0运行即可。
 
 
 
