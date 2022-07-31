@@ -20,9 +20,10 @@ string compress(string str1, string str2) 消息压缩函数
 
 string iteration(string str) 迭代压缩函数实现
 
-![](task11.png)
+![task11](https://user-images.githubusercontent.com/77255629/182004064-d1e9933e-2118-486f-9e97-10fd6d8a120e.png)
 
-![](task12.png)
+![task12](https://user-images.githubusercontent.com/77255629/182004070-9e8ba321-8c7b-45a5-b45c-2ee1c3195e5f.png)
+
 
 ### 项目二
 参考了https://sca.gov.cn/sca/xwdt/2010-12/17/1002386/files/b791a9f908bb4803875ab6aeeb7b4e03.pdf
